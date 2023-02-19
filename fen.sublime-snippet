@@ -1,0 +1,31 @@
+<snippet>
+  <content><![CDATA[
+template<class T> struct fenwich_tree {
+public:
+  fenwich_tree() {}
+  fenwich_tree(int n) : _n(n), data(n) {}
+  void add(int p, T x) {
+    for (int i = p + 1; i <= _n; i += i & -i) {
+      data[i - 1] += x;
+    }
+  }
+  T sum(int r) {
+    T s = 0;
+    for (int i = r; i > 0; i -= i & -i) {
+      s += data[i - 1];
+    }
+    return s;
+  }
+  T rangeSum(int l, int r) {
+    return sum(r) - sum(l);
+  }
+private:
+  int _n;
+  std::vector<T> data;
+};
+]]></content>
+  <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+  <tabTrigger>fen</tabTrigger>
+  <!-- Optional: Set a scope to limit where the snippet will trigger -->
+  <scope>source.lua</scope>
+</snippet>

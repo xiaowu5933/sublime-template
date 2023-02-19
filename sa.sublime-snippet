@@ -1,0 +1,55 @@
+<snippet>
+  <content><![CDATA[
+struct suffix_array {
+public:
+  suffix_array(const std::string& _s) : n(_s.size()) {
+    sa.resize(n + 1);
+    lcp.resize(n + 1);
+    rk.resize(n + 1);
+    tmp.resize(n + 1);
+    for (int i = 0; i <= n; ++i) {
+      sa[i] = i;
+      rk[i] = i < n ? _s[i] : -1;
+    }
+    for (int k = 1; k <= n; k *= 2) {
+      auto cmp = [&](const int& x, const int& y) {
+        if (rk[x] != rk[y]) {
+          return rk[x] < rk[y];
+        }
+        int nxx = x + k <= n ? rk[x + k] : -1;
+        int nyy = y + k <= n ? rk[y + k] : -1;
+        return nxx < nyy;
+      };
+      std::sort(sa.begin(), sa.end(), cmp);
+      tmp = rk;
+      tmp[sa[0]] = 0;
+      for (int i = 1; i <= n; ++i) {
+        tmp[sa[i]] = tmp[sa[i - 1]] + (cmp(sa[i - 1], sa[i]) ? 1 : 0);
+      }
+      rk = tmp;
+    }
+    for (int i = 0; i <= n; ++i) {
+      rk[sa[i]] = i;
+    }
+    for (int i = 0, k = 0; i < n; ++i, k ? k-- : 0) {
+      if (rk[i] == n) {
+        k = 0;
+        continue;
+      }
+      int j = sa[rk[i] + 1];
+      while (i + k < n && j + k < n && _s[i + k] == _s[j + k]) {
+        ++k;
+      }
+      lcp[rk[i]] = k;
+    }
+  }
+// private:
+  int n;
+  std::vector<int> lcp, sa, rk, tmp;
+};
+]]></content>
+  <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+  <tabTrigger>sa</tabTrigger>
+  <!-- Optional: Set a scope to limit where the snippet will trigger -->
+  <scope>source.lua</scope>
+</snippet>

@@ -1,0 +1,37 @@
+<snippet>
+  <content><![CDATA[
+std::vector<int> manacher_odd(std::string& s) {
+  int n = int(s.size());
+  s = '$' + s;
+  s += '^';
+  std::vector<int> p(n + 2, 0);
+  int L = 1, R = 1;
+  for (int i = 1; i < n; ++i) {
+    p[i] = std::max(0, std::min(R - i, p[L + (R - i)]));
+    while (s[i - p[i]] == s[i + p[i]]) {
+      ++p[i];
+    }
+    if (i + p[i] > R) {
+      L = i - p[i];
+      R = i + p[i];
+    }
+  }
+  return std::vector<int>(p.begin() + 1, p.end() - 1);
+}
+
+std::vector<int> manacher(const std::string& s) {
+  std::string t;
+  for (char c : s) {
+    t += '#';
+    t += c;
+  }
+  t += '#';
+  std::vector<int> ans = Manacher_odd(t);
+  return std::vector<int> (ans.begin(), ans.end());
+}
+]]></content>
+  <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+  <tabTrigger>manacher</tabTrigger>
+  <!-- Optional: Set a scope to limit where the snippet will trigger -->
+  <scope>source.lua</scope>
+</snippet>

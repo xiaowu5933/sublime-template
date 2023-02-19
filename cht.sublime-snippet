@@ -1,0 +1,54 @@
+<snippet>
+  <content><![CDATA[
+struct line {
+  mutable i64 a, b, x;
+  bool operator<(const line& rhs) const {
+    return a < rhs.a;
+  }
+  bool operator<(i64 rhs) const {
+    return x < rhs;
+  }
+};
+ 
+struct line_container : std::multiset<line, std::less<>> {
+  static const i64 inf = 1E18;
+  i64 div(i64 a, i64 b) {
+    return a / b + ((a ^ b) < 0 && a % b);
+  }
+  bool isect(iterator a, iterator b) {
+    if (b == end()) {
+      a->x = inf;
+      return false;
+    }
+    if (a->a == b->a) {
+      a->x = a->b > b->b ? inf : -inf;
+    } else {
+      a->x = div(b->b - a->b, a->a - b->a);
+    }
+    return a->x >= b->x;
+  }
+  void add(i64 a, i64 b) {
+    auto z = insert({a, b, 0});
+    auto y = z++, x = y;
+    while (isect(y, z)) {
+      z = erase(z);
+    }
+    if (x != begin() && isect(--x, y)) {
+      isect(x, y = erase(y));
+    }
+    while ((y = x) != begin() && (--x)->x >= y->x) {
+      isect(x, erase(y));
+    }
+  }
+  i64 query(i64 x) {
+    assert(!empty());
+    auto l = *lower_bound(x);
+    return l.a * x + l.b;
+  }
+};
+]]></content>
+  <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+  <tabTrigger>cht</tabTrigger>
+  <!-- Optional: Set a scope to limit where the snippet will trigger -->
+  <scope>source.lua</scope>
+</snippet>

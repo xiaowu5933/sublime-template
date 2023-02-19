@@ -1,0 +1,61 @@
+<snippet>
+  <content><![CDATA[
+struct partially_persistent_disjoint_set_union {
+public:
+  partially_persistent_disjoint_set_union() {}
+  partially_persistent_disjoint_set_union(int n) : _n(n), par(n) {
+    for (auto& a : par) {
+      a.push_back({-1, 0});
+    }
+  }
+  bool merge(int a, int b) {
+    assert(a >= 0 && a < _n);
+    assert(b >= 0 && b < _n);
+    ++time;
+    int x = leader(a, time), y = leader(b, time);
+    if (x == y) {
+      return false;
+    }
+    if (-par[x].back()[0] < -par[y].back()[0]) {
+      std::swap(x, y);
+    }
+    par[x].push_back({par[x].back()[0] + par[y].back()[0], time});
+    par[y].push_back({x, time});
+    return true;
+  }
+  bool same(int a, int b, int t) {
+    assert(a >= 0 && a < _n);
+    assert(b >= 0 && b < _n);
+    return leader(a, t) == leader(b, t);
+  }
+  int leader(int a, int t) {
+    assert(a >= 0 && a < _n);
+    if (par[a].back()[0] >= 0 && par[a].back()[1] <= t) {
+      return leader(par[a].back()[0], t);
+    }
+    return u;
+  }
+  int size(int a, int t) {
+    assert(a >= 0 && a < _n);
+    int x = leader(a, t);
+    int l = -1, r = par[a].size();
+    while (r - l > 1) {
+      int m = (l + r) / 2;
+      if (par[a][m][0] <= t) {
+        l = m;
+      } else {
+        r = m;
+      }
+    }
+    return -par[a][l][0];
+  }
+private:
+  int _n, time = 0;
+  std::vector<std::vector<std::array<int, 2>>> par;
+};
+]]></content>
+  <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+  <tabTrigger>pdsu</tabTrigger>
+  <!-- Optional: Set a scope to limit where the snippet will trigger -->
+  <scope>source.lua</scope>
+</snippet>

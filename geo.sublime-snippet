@@ -1,0 +1,47 @@
+<snippet>
+  <content><![CDATA[
+using point = double;
+point dot(const complex& a, const complex& b) {
+  return (conj(a) * b).x;
+}
+point cross(const complex& a, const complex& b) {
+  return (conj(a) * b).y;
+}
+constexpr point EPS = 1E-6;
+int ccw(const complex& a, const complex& b, const complex& c) {
+  point x = cross(b - a, c - a);
+  if (x > EPS) {
+    return 1;
+  }
+  if (x < -EPS) {
+    return -1;
+  }
+  return 0;
+}
+bool online(const complex& a, const complex& b, const complex& c){
+  return c.x >= std::min(a.x, b.x) && c.x <= std::max(a.x, b.x) && c.y >= std::min(a.y, b.y) && c.y <= std::max(a.y, b.y);
+}
+bool intersect(const complex& a, const complex& b, const complex& c, const complex& d) {
+  if (ccw(a, b, c) * ccw(a, b, d) < 0 && ccw(c, d, a) * ccw(c, d, b) < 0) {
+    return true;
+  }
+  if (!ccw(a, b, c) && online(a, b, c)) {
+    return true;
+  }
+  if (!ccw(a, b, d) && online(a, b, d)) {
+    return true;
+  }
+  if (!ccw(c, d, a) && online(c, d, a)) {
+    return true;
+  }
+  if (!ccw(c, d, b) && online(c, d, b)) {
+    return true;
+  }
+  return false;
+}
+]]></content>
+  <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+  <tabTrigger>geo</tabTrigger>
+  <!-- Optional: Set a scope to limit where the snippet will trigger -->
+  <scope>source.lua</scope>
+</snippet>

@@ -1,0 +1,112 @@
+<snippet>
+  <content><![CDATA[
+template<class T, class Merge = std::plus<T>> struct heavy_light_decomposition {
+public:
+  heavy_light_decomposition() {}
+  heavy_light_decomposition(int n) : _n(n), tot(0), merge(Merge()), data(4 << std::__lg(n)), edges(n), dep(n), par(n), son(n, -1), top(n), id(n), node(n), siz(n) {}
+  void add_edge(int u, int v) {
+    edges[u].push_back(v);
+    edges[v].push_back(u);
+  }
+  void dfs_heavy_son(int u, int p) {
+    siz[u] = 1;
+    for (int v : edges[u]) {
+      if (v == p) {
+        continue;
+      }
+      dep[v] = dep[u] + 1;
+      par[v] = u;
+      dfs_heavy_son(v, u);
+      siz[u] += siz[v];
+      if (son[u] == -1 || siz[v] > siz[son[u]]) {
+        son[u] = v;
+      }
+    }
+  }
+  void dfs_heavy_path(int u, int pt) {
+    top[u] = pt;
+    id[u] = tot;
+    node[tot++] = u;
+    if (son[u] != -1) {
+      dfs_heavy_path(son[u], pt);
+    }
+    for (int v : edges[u]) {
+      if (v == par[u] || v == son[u]) {
+        continue;
+      }
+      dfs_heavy_path(v, v);
+    }
+  }
+  void push(int p) {
+    data[p] = merge(data[2 * p], data[2 * p + 1]);
+  }
+  void update(int p, int l, int r, int x, T v) {
+    if (r - l == 1) {
+      data[p] = v;
+      return;
+    }
+    int m = (l + r) / 2;
+    if (x < m) {
+      update(2 * p, l, m, x, v);
+    } else {
+      update(2 * p + 1, m, r, x, v);
+    }
+    push(p);
+  }
+  void update(int x, T v) {
+    update(1, 0, _n, id[x], v);
+  }
+  T range_query(int p, int l, int r, int x, int y) {
+    if (l >= y || r <= x) {
+      return T();
+    }
+    if (x <= l && r <= y) {
+      return data[p];
+    }
+    int m = (l + r) / 2;
+    return merge(range_query(2 * p, l, m, x, y), range_query(2 * p + 1, m, r, x, y));
+  }
+  T range_query(int l, int r) {
+    return range_query(1, 0, _n, l, r);
+  }
+  T ask(int u, int v) {
+    T ans = T();
+    while (top[u] != top[v]) {
+      if (dep[top[u]] < dep[top[v]]) {
+        std::swap(u, v);
+      }
+      ans = merge(ans, range_query(id[top[u]], id[u] + 1));
+      u = par[top[u]];
+    }
+    if (id[u] > id[v]) {
+      std::swap(u, v);
+    }
+    ans = merge(ans, range_query(id[u], id[v] + 1));
+    return ans;
+  }
+private:
+  int _n, tot;
+  Merge merge;
+  std::vector<T> data;
+  std::vector<int> dep, par, son, top, id, node, siz;
+  std::vector<std::vector<int>> edges;
+};
+
+constexpr int inf = 1E9;
+struct _max {
+  int _v;
+  _max() : _v(-inf) {}
+  _max(int v) : _v(v) {}
+};
+
+struct Op {
+  _max operator()(const _max& lhs, const _max& rhs) const {
+    return _max(std::max(lhs._v, rhs._v));
+  }
+};
+]]></content>
+  <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+  <tabTrigger>hld</tabTrigger>
+  <!-- Optional: Set a scope to limit where the snippet will trigger -->
+  <scope>source.lua</scope>
+</snippet>

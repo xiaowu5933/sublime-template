@@ -1,0 +1,30 @@
+<snippet>
+  <content><![CDATA[
+template<class T, class Cmp = std::less<T>> struct range_minimum_query {
+public:
+  range_minimum_query() {}
+  range_minimum_query(const std::vector<T>& init) : n(init.size()), cmp(Cmp()) {
+    int LOG = std::__lg(n) + 1;
+    data.assign(n, std::vector<T>(LOG + 1));
+    for (int j = 0; j <= LOG; ++j) {
+      for (int i = 0; i + (1 << j) <= n; ++i) {
+        data[i][j] = !j ? init[i] : std::min(data[i][j - 1], data[i + (1 << (j - 1))][j - 1], cmp);
+      }
+    }
+  }
+  T range_min(int l, int r) {
+    assert(l < r);
+    int k = std::__lg(r - l);
+    return std::min(data[l][k], data[r - (1 << k)][k], cmp);
+  }
+private:
+  int n;
+  Cmp cmp;
+  std::vector<std::vector<T>> data;
+};
+]]></content>
+  <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+  <tabTrigger>rmq</tabTrigger>
+  <!-- Optional: Set a scope to limit where the snippet will trigger -->
+  <scope>source.lua</scope>
+</snippet>

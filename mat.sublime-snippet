@@ -1,0 +1,54 @@
+<snippet>
+  <content><![CDATA[
+template<typename T> struct matrix {
+public:
+  matrix() {}
+  matrix(int n, int m) : _n(n), _m(m), data(n, std::vector<T>(m)) {}
+  void init() {
+    assert(_n == _m);
+    for (int i = 0; i < _n; ++i) {
+      data[i][i] = 1;
+    }
+  }
+  matrix& operator*=(const matrix& rhs) {
+    assert(_m == rhs._n);
+    matrix ans(_n, rhs._m);
+    for (int i = 0; i < _n; ++i) {
+      for (int j = 0; j < rhs._m; ++j) {
+        for (int k = 0; k < _m; ++k) {
+          ans.data[i][j] += data[i][k] * rhs.data[k][j];
+        }
+      }
+    }
+    return (*this) = ans;
+  }
+  friend operator*(const matrix& lhs, const matrix& rhs) {
+    matrix res = lhs;
+    res *= rhs;
+    return res;
+  }
+// private:
+  int _n, _m;
+  std::vector<std::vector<T>> data;
+};
+
+using mat = matrix<Z>;
+
+mat pow(mat a, i64 b) {
+  mat ans(a._n, a._m);
+  ans.init();
+  while (b) {
+    if (b & 1) {
+      ans *= a;
+    }
+    a *= a;
+    b /= 2;
+  }
+  return ans;
+}
+]]></content>
+  <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+  <tabTrigger>mat</tabTrigger>
+  <!-- Optional: Set a scope to limit where the snippet will trigger -->
+  <scope>source.lua</scope>
+</snippet>

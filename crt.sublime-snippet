@@ -1,0 +1,33 @@
+<snippet>
+  <content><![CDATA[
+i64 _gcd(i64 a, i64 b, i64& x, i64& y) {
+  if (!b) {
+    x = 1;
+    y = 0;
+    return a;
+  }
+  i64 x2, y2;
+  i64 d = gcd(a, b, x2, y2);
+  x = y2;
+  y = x2 - y2 * (a / b);
+  return d;
+}
+
+std::pair<i64, i64> chinese_remainder_theorem(i64 a1, i64 m1, i64 a2, i64 m2) {
+  i64 x, y;
+  i64 d = _gcd(m1, m2);
+  if ((a2 - a1) % d) {
+    return std::make_pair(0, -1);
+  }
+  i64 ans = (((x * (a2 - a1) / d) % (m2 / d)) * m1 + a1) % (m2 / d * m1);
+  if (ans < 0) {
+    ans += m2 /d * m1;
+  }
+  return std::make_pair(ans, m2 / d * m1);
+}
+]]></content>
+  <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+  <tabTrigger>crt</tabTrigger>
+  <!-- Optional: Set a scope to limit where the snippet will trigger -->
+  <scope>source.lua</scope>
+</snippet>

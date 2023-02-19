@@ -1,0 +1,114 @@
+<snippet>
+  <content><![CDATA[
+template<class T, class Merge = std::plus<T>>
+struct segment_tree_lazy {
+public:
+  segment_tree_lazy() {}
+  segment_tree_lazy(int n) : _n(n), merge(Merge()), data(4 << std::__lg(n)), tag(4 << std::__lg(n)), tag2(4 << std::__lg(n), -1) {}
+  segment_tree_lazy(const std::vector<T>& init) : segment_tree_lazy(init.size()) {
+    std::function<void(int, int, int)> build = [&](int p, int l, int r) {
+      if (r - l == 1) {
+        data[p] = init[l];
+        return;
+      }
+      int m = (l + r) / 2;
+      build(2 * p, l, m);
+      build(2 * p + 1, m, r);
+      push(p);
+    };
+    build(1, 0, n);
+  }
+  void push(int p) {
+    data[p] = merge(data[2 * p], data[2 * p + 1]);
+  }
+  void app(int p, int l, int r) {
+    int m = (l + r) / 2;
+    if (tag2[p] != -1) {
+      tag2[2 * p] = tag2[2 * p + 1] = tag2[p];
+      data[2 * p] = data[2 * p + 1] = tag2[p];
+      tag[2 * p] = tag[2 * p + 1] = 0;
+      tag2[p] = -1;
+    } else if (tag[p]) {
+      if (tag2[2 * p] == -1) {
+        tag[2 * p] += tag[p];
+      } else {
+        tag2[2 * p] += tag[p];
+        tag[2 * p] = 0;
+      }
+      if (tag2[2 * p + 1] == -1) {
+        tag[2 * p + 1] += tag[p];
+      } else {
+        tag2[2 * p + 1] += tag[p];
+        tag[2 * p + 1] = 0;
+      }
+      data[2 * p] += tag[p];
+      data[2 * p + 1] += tag[p];
+      tag[p] = 0;
+    }
+  }
+  void addRange(int p, int l, int r, int x, int y, T v) {
+    if (x >= r || y <= l) {
+      return;
+    }
+    if (x <= l && r <= y) {
+      data[p] += v;
+      if (tag2[p] == -1) {
+        tag[p] += v;
+      } else {
+        tag2[p] += v;
+      }
+      return;
+    }
+    app(p, l, r);
+    int m = (l + r) / 2;
+    addRange(2 * p, l, m, x, y, v);
+    addRange(2 * p + 1, m, r, x, y, v);
+    push(p);
+  }
+  void addRange(int l, int r, T v) {
+    addRange(1, 0, n, l, r, v);
+  }
+  void setRange(int p, int l, int r, int x, int y, T v) {
+    if (x >= r || y <= l) {
+      return;
+    }
+    if (x <= l && r <= y) {
+      data[p] = v;
+      tag2[p] = v;
+      tag[p] = 0;
+      return;
+    }
+    app(p, l, r);
+    int m = (l + r) / 2;
+    setRange(2 * p, l, m, x, y, v);
+    setRange(2 * p + 1, m, r, x, y, v);
+    push(p);
+  }
+  void setRange(int l, int r, T v) {
+    setRange(1, 0, n, l, r, v);
+  }
+  T rangeQuery(int p, int l, int r, int x, int y) {
+    if (x >= r || y <= l) {
+      return T();
+    }
+    if (x <= l && r <= y) {
+      return data[p];
+    }
+    app(p, l, r);
+    int m = (l + r) / 2;
+    return merge(rangeQuery(2 * p, l, m, x, y), rangeQuery(2 * p + 1, m, r, x, y));
+  }
+  T rangeQuery(int l, int r) {
+    return rangeQuery(1, 0, n, l, r);
+  }
+private:
+  int _n;
+  Merge merge;
+  std::vector<T> data, tag, tag2; // value - add - set
+};
+]]></content>
+  <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+  <tabTrigger>segfull</tabTrigger>
+  <!-- Optional: Set a scope to limit where the snippet will trigger -->
+  <scope>source.lua</scope>
+</snippet>

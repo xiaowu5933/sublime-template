@@ -1,0 +1,57 @@
+<snippet>
+  <content><![CDATA[
+template<typename T>
+struct complex {
+  T x, y;
+  complex(T x = 0, T y = 0) : x(x), y(y) {}
+  friend complex conj(const complex& rhs) {
+    return complex(rhs.x, -rhs.y);
+  }
+  friend T norm(const complex& rhs) {
+    return rhs.x * rhs.x + rhs.y * rhs.y;
+  }
+  friend T abs(const complex& rhs) {
+    return std::sqrt(norm(rhs));
+  }
+  complex& operator+=(const complex& rhs) {
+    x += rhs.x;
+    y += rhs.y;
+    return *this;
+  }
+  complex& operator-=(const complex& rhs) {
+    x -= rhs.x;
+    y -= rhs.y;
+    return *this;
+  }
+  complex& operator*=(const complex& rhs) {
+    T x2 = x * rhs.x - y * rhs.y;
+    T y2 = x * rhs.y + y * rhs.x;
+    return *this = complex(x2, y2);
+  }
+  complex& operator/=(const complex& rhs) {
+    complex x = *this;
+    x *= rhs.conj();
+    x.x /= rhs.norm();
+    x.y /= rhs.norm();
+    return *this = x;
+  }
+  friend complex operator+(complex lhs, const complex& rhs) {
+    return lhs += rhs;
+  }
+  friend complex operator-(complex lhs, const complex& rhs) {
+    return lhs -= rhs;
+  }
+  friend complex operator*(complex lhs, const complex& rhs) {
+    return lhs *= rhs;
+  }
+  friend complex operator/(complex lhs, const complex& rhs) {
+    return lhs /= rhs;
+  }
+};
+using complex = complex<double>;
+]]></content>
+  <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+  <tabTrigger>complex</tabTrigger>
+  <!-- Optional: Set a scope to limit where the snippet will trigger -->
+  <scope>source.lua</scope>
+</snippet>
